@@ -1,0 +1,55 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [tasks, setTasks] = useState([]);
+  const [title, setTitle] = useState('');
+
+  // Fetch Tasks
+  useEffect(() => {
+    axios.get('http://localhost:5000/tasks').then(res => setTasks(res.data));
+  }, []);
+
+  // Add Task
+  const addTask = () => {
+    axios.post('http://localhost:5000/tasks', { title }).then(res => {
+      setTasks([...tasks, res.data]);
+      setTitle('');
+    });
+  };
+
+  // Delete Task
+  const deleteTask = (id) => {
+    axios.delete(`http://localhost:5000/tasks/${id}`).then(() => {
+      setTasks(tasks.filter(t => t._id !== id));
+    });
+  };
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+      <h1>Task Management Application</h1>
+      <div style={{ marginBottom: '20px' }}>
+        <input 
+          value={title} 
+          onChange={(e) => setTitle(e.target.value)} 
+          placeholder="Enter task title..." 
+          style={{ padding: '10px', width: '300px' }}
+        />
+        <button onClick={addTask} style={{ padding: '10px 20px', marginLeft: '10px', cursor: 'pointer' }}>
+          Add Task
+        </button>
+      </div>
+
+      <ul>
+        {tasks.map(task => (
+          <li key={task._id} style={{ marginBottom: '10px', borderBottom: '1px solid #ccc', padding: '10px' }}>
+            <strong>{task.title}</strong>
+            <button onClick={() => deleteTask(task._id)} style={{ float: 'right', color: 'red' }}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
